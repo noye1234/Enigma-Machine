@@ -1,0 +1,227 @@
+package patmal.course.enigma.engine.component;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Code implements Serializable {
+    private List<Integer> order;
+    private Map<Integer,EnigmaRotor> rotors= new HashMap<>();
+    private Map<Integer,EnigmaRotor> copy_rotors= new HashMap<>();
+    private EnigmaReflector reflectors;
+    private int num_of_massages=0;
+    private ArrayList<Long> times=new ArrayList<>();
+    private ArrayList<String> orgMessages=new ArrayList<>();
+    private ArrayList<String> outMessages=new ArrayList<>();
+    private List<Character> alphabet;
+    private plugboardPairs plugboardPairs = new plugboardPairs();
+
+
+    public void setAlphabet(List<Character> alphabet) {
+        this.alphabet = alphabet;
+    }
+
+    public Code(Map<Integer,EnigmaRotor> rotors_, List<Integer> order_, EnigmaReflector reflectors_){
+        this.rotors=rotors_;
+        this.order=order_;
+        this.reflectors=reflectors_;
+
+
+        for (int i=0;i<order.size();i++){
+            copy_rotors.put(order.get(i),new EnigmaRotor(rotors.get(order.get(i))));
+        }
+
+
+    }
+
+    public void addOrginalMassage(String input) {
+        this.orgMessages.add(input);
+    }
+    public void addOutMassage(String output) {
+        this.outMessages.add(output);
+    }
+    public void addTime(long time) {
+        this.times.add(time);
+    }
+
+    public String processMessage(String input){
+        StringBuilder output = new StringBuilder();
+
+        for (char ch : input.toCharArray()) {
+            ch=plugboardPairs.swap(ch);
+
+            char processedChar = processChar(Character.toUpperCase(ch));
+
+            processedChar=plugboardPairs.swap(processedChar);
+
+            output.append(processedChar);
+        }
+        return output.toString();
+    }
+
+    public void restart_code(){
+        for (int i=0;i<order.size();i++){
+            rotors.put(order.get(i),new EnigmaRotor(copy_rotors.get(order.get(i))));
+        }
+    }
+    public char processChar(char ch) {
+
+        advanceRotors(); // Always rotate before processing
+
+
+        int currentIndex = alphabet.indexOf(ch);
+
+
+        // Forward (right → left): last rotor in order is rightmost
+        for (int i = order.size() - 1; i >= 0; i--) {
+            EnigmaRotor rotor = rotors.get(order.get(i));
+            currentIndex = rotor.forwardNew(currentIndex);
+        }
+
+        currentIndex=reflectors.reflectIndex(currentIndex);
+
+        // Backward (left → right): first rotor in order is leftmost
+        for (int i = 0; i < order.size(); i++) {
+            EnigmaRotor rotor = rotors.get(order.get(i));
+            currentIndex = rotor.backward(currentIndex);
+        }
+
+        return  alphabet.get(currentIndex);
+    }
+
+
+
+
+    private void advanceRotors() {
+
+
+        for (int i = order.size() - 1; i >= 0; i--) {
+            EnigmaRotor rotor = rotors.get(order.get(i));
+            if (i == order.size() - 1 ) {
+                rotor.rotate();
+            }
+            if (rotor.isAtNotch() && i > 0) {
+
+                EnigmaRotor leftRotor = rotors.get(order.get(i - 1));
+                leftRotor.rotate();
+
+            }
+        }
+
+//        EnigmaRotor right  = rotors.get(order.get(2));
+//        EnigmaRotor middle = rotors.get(order.get(1));
+//        EnigmaRotor left   = rotors.get(order.get(0));
+//
+//        right.rotate();
+//
+//        if (right.isAtNotch()) {
+//            middle.rotate();
+//
+//            if ( middle.isAtNotch()) {
+//                left.rotate();
+//            }
+//        }
+    }
+
+
+
+    public String showCurrentCode(){
+        return this.toString(this.rotors);
+    }
+
+    public String toString(Map<Integer,EnigmaRotor> my_rotors) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<");
+        for (Integer rotorIndex : order) {
+            sb.append(rotorIndex);
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1); // Remove last comma
+        sb.append("><");
+        for (Integer rotorIndex : order) {
+            sb.append(my_rotors.get(rotorIndex).toString());
+            sb.append(",");
+        }
+        sb.deleteCharAt(sb.length() - 1); // Remove last comma
+        sb.append("><");
+        sb.append(reflectors.toString());
+        sb.append(">");
+
+       // sb.deleteCharAt(sb.length() - 1); // Remove last comma
+        if (!this.plugboardPairs.isEmpty()){
+            sb.append("<");
+            sb.append(this.plugboardPairs.toString());
+            sb.append(">");
+        }
+
+        return sb.toString();
+
+    }
+
+    public String printMassagesData(){
+        int len=this.orgMessages.size();
+        StringBuilder sb = new StringBuilder();
+        if (len==0){
+            return "No messages processed yet.\n";
+        }
+        for (int i=0;i<len;i++){
+            sb.append((i+1)+" <" + this.orgMessages.get(i)+">"+ " ->" +
+                    " <" + this.outMessages.get(i)+">" +" ("+ this.times.get(i)+" ns)\n");
+        }
+        return sb.toString();
+    }
+
+
+
+    public int getMessagesCount(){
+        return this.orgMessages.size();
+    }
+
+
+    public Map<Integer,EnigmaRotor> getCopyRotors(){
+        return this.copy_rotors;
+    }
+    public  Map<Integer,EnigmaRotor> getRotors(){
+        return this.rotors;
+    }
+
+
+    public void addPlugboardPair(char firstChar, char secondChar) {
+        this.plugboardPairs.addPair(firstChar, secondChar);
+    }
+
+    public boolean isCharInPlugboard(char ch){
+        return this.plugboardPairs.swap(ch)!=ch;
+
+    }
+
+
+    public String createPlugBoardPairs(String pairsInput){
+        if (pairsInput.charAt(0)=='[' && pairsInput.charAt(pairsInput.length()-1)==']'){
+            pairsInput=pairsInput.substring(1,pairsInput.length()-1);
+        }
+
+        int len=pairsInput.length();
+
+        if (len%2!=0){
+            return "Plugboard pairs input length must be even.";
+        }
+        for (int i=0;i<len;i+=2) {
+            char firstChar = pairsInput.charAt(i);
+            char secondChar = pairsInput.charAt(i + 1);
+            if (!alphabet.contains(firstChar) || !alphabet.contains(secondChar)) {
+                return "Plugboard pair characters must be in the alphabet.";
+            }
+            if(firstChar==secondChar){
+                return "Plugboard pair cannot map a character to itself.";
+            }
+            if ( isCharInPlugboard(firstChar) || isCharInPlugboard(secondChar)) {
+                return "Plugboard character already mapped.";
+            }
+            this.plugboardPairs.addPair(firstChar, secondChar);
+        }
+        return null;
+    }
+}
