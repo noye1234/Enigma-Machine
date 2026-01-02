@@ -40,7 +40,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>enigma.console.Main</mainClass>
+                            <mainClass>patmal.course.enigma.Console.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
