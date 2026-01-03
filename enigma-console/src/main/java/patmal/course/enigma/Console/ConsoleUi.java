@@ -104,7 +104,7 @@ public class ConsoleUi implements Serializable {
         }
         else{
             System.out.println("Error in manual coding: " + error);
-            System.out.println("Expected format: <rotor_positions><reflector_type><starting_rotor_index>");
+            System.out.println("Expected format: <rotor_index><starting_rotor_positions><reflector_type>");
         }
 
     }

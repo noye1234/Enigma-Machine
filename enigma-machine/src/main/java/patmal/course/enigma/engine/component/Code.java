@@ -198,28 +198,56 @@ public class Code implements Serializable {
     }
 
 
-    public String createPlugBoardPairs(String pairsInput){
-        if (pairsInput.charAt(0)=='[' && pairsInput.charAt(pairsInput.length()-1)==']'){
-            pairsInput=pairsInput.substring(1,pairsInput.length()-1);
+    public String validatePairsString(String pairsInput){
+        if (pairsInput==null || pairsInput.isEmpty()){
+            return null;
         }
-
+        Map<Character,Integer> charCount=new HashMap<>();
         int len=pairsInput.length();
 
         if (len%2!=0){
             return "Plugboard pairs input length must be even.";
         }
+        int index=0;
+
+
+        for (char ch : pairsInput.toCharArray()) {
+            if (!alphabet.contains(ch)) {
+                return "Plugboard pair characters must be in the alphabet.";
+            }
+            if (index%2==0){
+                char secondChar=pairsInput.charAt(index+1);
+                if(secondChar==ch){
+                    return "Plugboard pair cannot map a character to itself.";
+                }
+            }
+            index++;
+            charCount.put(ch, charCount.getOrDefault(ch, 0) + 1);
+        }
+
+        for (Map.Entry<Character, Integer> entry : charCount.entrySet()) {
+            if (entry.getValue() > 1) {
+                return "Plugboard character already mapped.";
+            }
+        }
+        return null;
+    }
+
+
+    public String createPlugBoardPairs(String pairsInput){
+        if (pairsInput.charAt(0)=='[' && pairsInput.charAt(pairsInput.length()-1)==']'){
+            pairsInput=pairsInput.substring(1,pairsInput.length()-1);
+        }
+        String isValid=validatePairsString(pairsInput);
+        if (isValid!=null){
+            return isValid;
+        }
+
+        int len=pairsInput.length();
+
         for (int i=0;i<len;i+=2) {
             char firstChar = pairsInput.charAt(i);
             char secondChar = pairsInput.charAt(i + 1);
-            if (!alphabet.contains(firstChar) || !alphabet.contains(secondChar)) {
-                return "Plugboard pair characters must be in the alphabet.";
-            }
-            if(firstChar==secondChar){
-                return "Plugboard pair cannot map a character to itself.";
-            }
-            if ( isCharInPlugboard(firstChar) || isCharInPlugboard(secondChar)) {
-                return "Plugboard character already mapped.";
-            }
             this.plugboardPairs.addPair(firstChar, secondChar);
         }
         return null;

@@ -307,6 +307,7 @@ public class EngineImpl implements Engine, Serializable {
         str=str.substring(1); // remove the opening '<'
 
         int maxNumOfRotors=this.machineModel.getRotorCount();
+
         while (str.charAt(0)!='<' && (index[0]+1)<= maxNumOfRotors){
             try {
 
@@ -331,6 +332,10 @@ public class EngineImpl implements Engine, Serializable {
         if (str.charAt(0)!='<'){
             return "There is more rotors than the machine support ";
         }
+        if ((index[0]+1)<= maxNumOfRotors){
+            return "There is less rotors than the machine support ";
+        }
+
         return null;
 
     }
@@ -474,8 +479,8 @@ public class EngineImpl implements Engine, Serializable {
                 return "Starting position "+CharLetter+" is not in the machine's alphabet.";
             }
         }
-        if (len!=machineModel.getAvailableRotors().size()){
-            return "Number of starting positions "+len+" does not match the number of rotors in the machine "+machineModel.getAvailableRotors().size()+".";
+        if (len!=machineModel.getRotorCount()){
+            return "Number of starting positions "+len+" does not match the number of rotors in the machine "+machineModel.getRotorCount()+".";
         }
         return null;
     }
