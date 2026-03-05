@@ -40,7 +40,6 @@
 
     <build>
         <plugins>
-            <!-- JAXB2 Maven Plugin לגרסה 3.1.0 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
