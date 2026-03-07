@@ -12,6 +12,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/enigma/config")
+@CrossOrigin(origins = "*")
 public class ConfigurationController {
 
     private final CodeService codeService;

@@ -8,6 +8,7 @@ import patmal.course.enigma.ProcessRequestDTO.LoadResponse;
 
 @RestController
 @RequestMapping("/enigma")
+@CrossOrigin(origins = "*")
 public class LoaderController {
 
     private final LoaderService loaderService;

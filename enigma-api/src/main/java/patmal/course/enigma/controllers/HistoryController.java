@@ -11,6 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/enigma")
+@CrossOrigin(origins = "*")
 public class HistoryController {
 
     private final StatisticsService statisticsService;

@@ -8,6 +8,7 @@ import patmal.course.enigma.service.ProcessService;
 
 @RestController
 @RequestMapping("/enigma")
+@CrossOrigin(origins = "*")
 public class ProcessController {
 
     private final ProcessService processService;
