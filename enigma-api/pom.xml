@@ -45,6 +45,10 @@
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
         <!-- enigma-api must not depend on enigma-app to avoid a reactor cycle; the application module depends on this API -->
     </dependencies>
 

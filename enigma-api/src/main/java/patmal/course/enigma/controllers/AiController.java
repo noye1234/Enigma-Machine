@@ -25,15 +25,9 @@ public class AiController {
     public ResponseEntity<AiResponseDTO> processAiQuery(@RequestBody AiRequestDTO request) {
         System.out.println("User asked: " + request.getQuery());
 
-        // ברגע שיהיה לך מפתח, תוריד את ההערות מהשורות האלה:
-        // String generatedSql = aiService.generateSqlFromQuery(request.getQuery());
-        // String rawDbResults = aiService.executeDynamicSql(generatedSql);
-        // String finalAnswer = aiService.generateFinalAnswer(request.getQuery(), rawDbResults);
-
-        // --- Mock Data (נתונים זמניים לבדיקת ה-Web) ---
-        String generatedSql = "SELECT COUNT(*) FROM machines;";
-        String finalAnswer = "There are currently 2 machines declared in the system.";
-        // ----------------------------------------------
+         String generatedSql = aiService.generateSqlFromQuery(request.getQuery());
+         String rawDbResults = aiService.executeDynamicSql(generatedSql);
+         String finalAnswer = aiService.generateFinalAnswer(request.getQuery(), rawDbResults);
 
         AiResponseDTO response = new AiResponseDTO(finalAnswer, generatedSql);
         return ResponseEntity.ok(response);
