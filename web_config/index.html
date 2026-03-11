@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enigma Submarine Game</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
+            padding: 0;
+            background-image: url('enigma.png'); 
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            transition: background-image 0.5s ease-in-out; 
+        }
+
+        #backButton {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #7f8c8d;
+            color: white;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: none; 
+            z-index: 40;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        #backButton:hover { background-color: #95a5a6; }
+
+        #muteButton {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            padding: 10px 15px;
+            background-color: rgba(44, 62, 80, 0.8);
+            color: white;
+            border: 2px solid #7f8c8d;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 40;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        #muteButton:hover { background-color: rgba(52, 73, 94, 1); }
+
+        #commanderClickArea {
+            position: absolute;
+            top: 35%; 
+            left: 15%;
+            width: 20%;
+            height: 50%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #machineClickArea {
+            position: absolute;
+            top: 45%; 
+            right: 15%; 
+            width: 25%;
+            height: 40%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        #chatInputArea {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none; 
+            gap: 10px;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        #queryInput {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #555;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            width: 450px;
+        }
+
+        #askButton {
+            padding: 12px 25px;
+            background-color: #c0392b; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        #speechBubble {
+            position: absolute;
+            top: 25%; 
+            right: 15%; 
+            display: none; 
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 3px solid #2c3e50;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 350px;
+            z-index: 30;
+            font-size: 18px;
+        }
+
+        #controlPanel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(20, 20, 20, 0.85);
+            color: #00ff00; 
+            border: 2px solid #555;
+            padding: 15px;
+            border-radius: 5px;
+            display: none; 
+            font-size: 14px;
+            font-family: monospace;
+            z-index: 15;
+            max-width: 300px;
+        }
+
+        #notebookActionPanel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none; 
+            flex-direction: column; 
+            gap: 10px;
+            z-index: 20;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #d35400;
+            width: 650px; 
+        }
+
+        #machineProcessPanel {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none; 
+            flex-direction: column; 
+            gap: 10px;
+            z-index: 20;
+            background: rgba(20, 20, 20, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #d35400;
+            width: 650px; 
+        }
+        
+        #switchToMachineProcessBtn {
+            position: absolute;
+            top: 220px; 
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 35px;
+            background-color: #d35400; 
+            color: white;
+            border: 2px solid #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            display: none; 
+            z-index: 40;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(211, 84, 0, 0.8);
+        }
+
+        #switchToMachineProcessBtn:hover { 
+            background-color: #e67e22; 
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        #backToNotebookBtn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: #2980b9; 
+            color: white;
+            border: 2px solid #2c3e50;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            display: none; 
+            z-index: 40;
+            transition: background 0.3s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        #backToNotebookBtn:hover { background-color: #3498db; }
+
+        .api-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-bottom: 1px dashed #555;
+            padding-bottom: 10px;
+        }
+        .api-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+        .api-input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #777;
+            flex: 1;
+        }
+
+        .api-btn {
+            padding: 8px 15px;
+            background-color: #d35400; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: monospace;
+            font-weight: bold;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+
+        .api-btn:hover { background-color: #e67e22; }
+        .btn-secondary { background-color: #2980b9; border: 1px solid #2980b9;}
+        .btn-secondary:hover { background-color: #3498db; }
+
+        #machineOutputPanel {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 3px solid #333;
+            border-radius: 10px;
+            padding: 10px 15px;
+            width: 500px;
+            height: 180px; 
+            box-sizing: border-box; 
+            overflow: hidden; 
+            display: none; 
+            z-index: 30;
+            font-family: monospace;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .loader {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 24px;
+            z-index: 50;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px 40px;
+            border-radius: 10px;
+            border: 2px solid #fff;
+        }
+
+        .enigma-result-box {
+            background: linear-gradient(135deg, #111 0%, #222 100%);
+            border: 2px solid #f1c40f;
+            border-radius: 6px;
+            padding: 12px 10px;
+            margin-top: 5px;
+            box-shadow: 0 0 8px rgba(241, 196, 15, 0.3), inset 0 0 10px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .enigma-result-header {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 13px;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            text-shadow: 0 0 5px rgba(231, 76, 60, 0.5);
+            border-bottom: 1px dashed #444;
+            padding-bottom: 5px;
+        }
+        .enigma-result-output {
+            font-size: 22px; 
+            color: #2ecc71;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 4px; 
+            margin: 8px 0; 
+            text-shadow: 0 0 6px rgba(46, 204, 113, 0.8);
+            word-wrap: break-word;
+            font-weight: bold;
+        }
+        .enigma-result-meta {
+            font-size: 11px;
+            color: #aaa;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 8px;
+            border-top: 1px dashed #444;
+            padding-top: 8px;
+        }
+        .meta-badge {
+            background: #000;
+            padding: 3px 6px;
+            border-radius: 3px;
+            border: 1px solid #555;
+            color: #f39c12;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgMusic" loop>
+        <source src="Veridian_Echoes.mp3" type="audio/mpeg">
+    </audio>
+
+    <button id="muteButton" onclick="toggleMusic()">🔊 Mute Music</button>
+
+    <button id="backButton" onclick="stepBack()">Return to Post ➡</button>
+
+    <div id="commanderClickArea" onclick="approachCommander()"></div>
+    <div id="machineClickArea" onclick="approachMachine()"></div>
+
+    <div id="chatInputArea">
+        <input type="text" id="queryInput" placeholder="Yes, Commander? What are your orders?" />
+        <button id="askButton" onclick="askAI()">Awaiting Orders</button>
+    </div>
+    <div id="speechBubble">
+        <div style="font-weight: bold; color: #c0392b; margin-bottom: 10px; border-bottom: 2px solid #ccc;">Kapitän:</div>
+        <div id="answerText" style="color:#222; font-family: 'Segoe UI', Tahoma, sans-serif;"></div>
+    </div>
+    <div id="controlPanel">
+        <div style="color: #aaa; margin-bottom: 5px;">[SYSTEM INTERCEPT]</div>
+        <div id="sqlText"></div>
+    </div>
+
+    <div id="notebookActionPanel">
+        <div class="api-row">
+            <span style="color:white; font-family: monospace;">1.</span>
+            <input type="file" id="xmlFile" class="api-input" accept=".xml" style="color: white; border:none;" />
+            <button class="api-btn" onclick="apiLoadMachine()">Load XML</button>
+        </div>
+        <div class="api-row">
+            <span style="color:white; font-family: monospace;">2.</span>
+            <input type="text" id="machineName" class="api-input" placeholder="Machine Name (e.g. Enigma-M1)" />
+            <button class="api-btn" onclick="apiCreateSession()">Create Session</button>
+        </div>
+        <div class="api-row" style="background: rgba(241, 196, 15, 0.1); padding: 10px; border-radius: 5px; border-left: 3px solid #f1c40f;">
+            <span style="color:#f1c40f; font-family: monospace; font-weight: bold;">3. TARGET SESSION:</span>
+            <input type="text" id="notebookSessionId" class="api-input" placeholder="Paste your Session ID here..." style="font-weight:bold; border: 1px solid #f1c40f;"/>
+        </div>
+        <div class="api-row">
+            <span style="color:white; font-family: monospace;">4.</span>
+            <button class="api-btn" onclick="apiAutoConfig()">Auto Configure</button>
+            <button class="api-btn btn-secondary" onclick="apiGetStatus()">Get Status</button>
+            <button class="api-btn btn-secondary" onclick="apiGetHistory()">View History</button>
+            <button class="api-btn" style="background-color: #c0392b;" onclick="apiResetConfig()">Reset Machine</button>
+        </div>
+        <div class="api-row">
+            <span style="color:white; font-family: monospace;">5.</span>
+            <input type="text" id="manualJsonInput" class="api-input" placeholder='Paste Config JSON (Include sessionID inside!)...' />
+            <button class="api-btn btn-secondary" onclick="apiManualConfig()">Manual Config</button>
+        </div>
+    </div>
+
+    <button id="switchToMachineProcessBtn" onclick="switchToMachineProcess()">Start encryption</button>
+    <button id="backToNotebookBtn" onclick="switchToNotebook()">⬅ Back to Configuration</button>
+
+    <div id="machineProcessPanel">
+        <div class="api-row" style="background: rgba(241, 196, 15, 0.1); padding: 10px; border-radius: 5px; border-left: 3px solid #f1c40f;">
+            <span style="color:#f1c40f; font-family: monospace; font-weight: bold;">SESSION:</span>
+            <input type="text" id="processSessionId" class="api-input" placeholder="Paste Session ID..." style="max-width: 250px; font-weight:bold; border: 1px solid #f1c40f;" />
+        </div>
+        <div class="api-row">
+            <span style="color:white; font-family: monospace;">>></span>
+            <input type="text" id="encryptInput" class="api-input" placeholder="Text to encrypt/decrypt..." />
+            <button class="api-btn" onclick="apiProcess()">Process</button>
+        </div>
+    </div>
+
+    <div id="machineOutputPanel">
+        <div style="font-weight: bold; color: #d35400; margin-bottom: 2px; border-bottom: 2px solid #ccc; padding-bottom: 2px;">[ENIGMA LOG]</div>
+        <div id="apiResultText">Awaiting operator input...</div>
+    </div>
+
+    <div id="loader" class="loader">Processing...</div>
+
+    <script>
+        let musicStarted = false;
+        function startMusic() {
+            if (!musicStarted) {
+                const music = document.getElementById('bgMusic');
+                music.volume = 0.2; 
+                music.play().catch(e => console.log("Audio play prevented:", e));
+                musicStarted = true;
+            }
+        }
+
+        function toggleMusic() {
+            const music = document.getElementById('bgMusic');
+            const btn = document.getElementById('muteButton');
+            if (music.muted) {
+                music.muted = false;
+                btn.innerText = "🔊 Mute Music";
+            } else {
+                music.muted = true;
+                btn.innerText = "🔈 Unmute Music";
+            }
+        }
+
+        function approachCommander() {
+            startMusic(); 
+            document.body.style.backgroundImage = "url('enigma_commanfer.png')";
+            hideMainClickAreas();
+            document.getElementById('chatInputArea').style.display = 'flex';
+            document.getElementById('backButton').style.display = 'block'; 
+            document.getElementById('queryInput').focus();
+        }
+
+        function approachMachine() {
+            startMusic(); 
+            document.body.style.backgroundImage = "url('enigma_notebook.png')"; 
+            hideMainClickAreas();
+            
+            document.getElementById('notebookActionPanel').style.display = 'flex';
+            document.getElementById('switchToMachineProcessBtn').style.display = 'block'; 
+            document.getElementById('backToNotebookBtn').style.display = 'none'; 
+            
+            document.getElementById('machineOutputPanel').style.display = 'block';
+            document.getElementById('backButton').style.display = 'block'; 
+            showLog("Enigma Notebook opened. You can manage multiple machines.");
+        }
+
+        function switchToMachineProcess() {
+            document.body.style.backgroundImage = "url('enigma_machine.png')"; 
+            
+            document.getElementById('notebookActionPanel').style.display = 'none';
+            document.getElementById('switchToMachineProcessBtn').style.display = 'none'; 
+            
+            document.getElementById('machineProcessPanel').style.display = 'flex';
+            document.getElementById('backToNotebookBtn').style.display = 'block'; 
+            
+            showLog("Transferred to Machine Control. Make sure your Session ID is entered.");
+            document.getElementById('encryptInput').focus(); 
+        }
+
+        function switchToNotebook() {
+            document.body.style.backgroundImage = "url('enigma_notebook.png')"; 
+            
+            document.getElementById('machineProcessPanel').style.display = 'none';
+            document.getElementById('backToNotebookBtn').style.display = 'none'; 
+            
+            document.getElementById('notebookActionPanel').style.display = 'flex';
+            document.getElementById('switchToMachineProcessBtn').style.display = 'block'; 
+            
+            showLog("Returned to Notebook Configuration.");
+        }
+
+        function stepBack() {
+            document.body.style.backgroundImage = "url('enigma.png')";
+            
+            document.getElementById('commanderClickArea').style.display = 'block'; 
+            document.getElementById('machineClickArea').style.display = 'block'; 
+            
+            document.getElementById('backButton').style.display = 'none'; 
+            
+            document.getElementById('chatInputArea').style.display = 'none'; 
+            document.getElementById('speechBubble').style.display = 'none'; 
+            document.getElementById('controlPanel').style.display = 'none'; 
+            document.getElementById('queryInput').value = ''; 
+
+            document.getElementById('notebookActionPanel').style.display = 'none';
+            document.getElementById('switchToMachineProcessBtn').style.display = 'none';
+            document.getElementById('backToNotebookBtn').style.display = 'none'; 
+
+            document.getElementById('machineProcessPanel').style.display = 'none';
+            document.getElementById('machineOutputPanel').style.display = 'none';
+        }
+
+        function hideMainClickAreas() {
+            document.getElementById('commanderClickArea').style.display = 'none';
+            document.getElementById('machineClickArea').style.display = 'none';
+        }
+
+        function showLog(text) {
+            document.getElementById('apiResultText').innerHTML = text; 
+        }
+
+        function showLoader(msg) {
+            document.getElementById('loader').innerText = msg;
+            document.getElementById('loader').style.display = 'block';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        // --- פונקציית AI המעודכנת שתופסת ומציגה שגיאות! ---
+        async function askAI() {
+            const query = document.getElementById('queryInput').value;
+            if (!query) return;
+
+            document.getElementById('chatInputArea').style.display = 'none';
+            showLoader("Transmitting to Berlin...");
+            document.getElementById('speechBubble').style.display = 'none';
+            document.getElementById('controlPanel').style.display = 'none';
+
+            try {
+                const response = await fetch('http://localhost:8080/enigma/ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query })
+                });
+                
+                const data = await response.json();
+
+                // כאן אנחנו בודקים אם השרת קרס והחזיר שגיאה (למשל בעיית מפתח API)
+                if (!response.ok) {
+                    let errorMsg = data.message || data.error || "Internal Server Error";
+                    document.getElementById('answerText').innerText = "System Error! Check your backend Console in IntelliJ. Details: " + errorMsg;
+                    document.getElementById('sqlText').innerText = "ERROR - No SQL generated";
+                } else {
+                    document.getElementById('answerText').innerText = data.answer || "No answer received.";
+                    document.getElementById('sqlText').innerText = data.sql || "N/A";
+                }
+
+                hideLoader();
+                document.getElementById('speechBubble').style.display = 'block';
+                document.getElementById('controlPanel').style.display = 'block';
+                document.getElementById('chatInputArea').style.display = 'flex'; 
+                document.getElementById('queryInput').value = ''; 
+            } catch (error) {
+                alert("Communication Error! AI Server is offline.");
+                hideLoader();
+                document.getElementById('chatInputArea').style.display = 'flex'; 
+            }
+        }
+
+        const BASE_URL = 'http://localhost:8080/enigma';
+
+        async function executeCall(url, options) {
+            try {
+                const response = await fetch(url, options);
+                const textData = await response.text();
+                
+                if (!response.ok) {
+                    throw new Error("Error " + response.status + ": " + textData);
+                }
+
+                try {
+                    const jsonData = JSON.parse(textData);
+                    showLog("<pre style='margin:0; max-height:130px; overflow-y:auto; white-space:pre-wrap; font-size:12px; color:#222;'>" + JSON.stringify(jsonData, null, 2) + "</pre>");
+                    return jsonData;
+                } catch(e) {
+                    showLog(textData);
+                    return textData;
+                }
+            } catch (error) {
+                showLog("<span style='color:red;'>ERROR: " + error.message + "</span>");
+                throw error;
+            }
+        }
+
+        async function apiLoadMachine() {
+            const fileInput = document.getElementById('xmlFile');
+            if (fileInput.files.length === 0) {
+                showLog("<span style='color:red;'>Please select an XML file first.</span>");
+                return;
+            }
+            showLoader("Loading XML...");
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+            try { await executeCall(BASE_URL + '/load', { method: 'POST', body: formData }); } 
+            finally { hideLoader(); }
+        }
+
+        async function apiCreateSession() {
+            const machineName = document.getElementById('machineName').value;
+            if (!machineName) {
+                showLog("<span style='color:red;'>Please enter a machine name.</span>");
+                return;
+            }
+            showLoader("Creating session...");
+            try {
+                const data = await executeCall(BASE_URL + '/session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ machine: machineName })
+                });
+                
+                if (data && data.sessionID) {
+                    let displayHtml = `<div style="text-align: center; border: 2px solid #f1c40f; background: rgba(241, 196, 15, 0.15); padding: 10px; border-radius: 5px; margin-top: 5px;">
+                        <div style="color: #f1c40f; font-weight: bold; margin-bottom: 5px; font-size: 14px;">Session Created Successfully!</div>
+                        <div style="color: #2c3e50; font-size: 12px; margin-bottom: 5px;">Please copy this Session ID:</div>
+                        <div style="font-size: 16px; color: #2ecc71; font-family: monospace; font-weight: bold; user-select: all; background: #222; padding: 4px 10px; border-radius: 3px; border: 1px solid #555; display: inline-block;">${data.sessionID}</div>
+                    </div>`;
+                    showLog(displayHtml);
+                }
+            } finally { hideLoader(); }
+        }
+
+        async function apiAutoConfig() {
+            const sid = document.getElementById('notebookSessionId').value.trim();
+            if (!sid) { showLog("<span style='color:red;'>Please enter a Target Session ID in step 3.</span>"); return; }
+            showLoader("Configuring...");
+            try { await executeCall(BASE_URL + '/config/automatic?sessionID=' + sid, { method: 'PUT' }); } 
+            finally { hideLoader(); }
+        }
+
+        async function apiGetStatus() {
+            const sid = document.getElementById('notebookSessionId').value.trim();
+            if (!sid) { showLog("<span style='color:red;'>Please enter a Target Session ID in step 3.</span>"); return; }
+            showLoader("Fetching status...");
+            try { await executeCall(BASE_URL + '/config?sessionID=' + sid + '&verbose=true', { method: 'GET' }); } 
+            finally { hideLoader(); }
+        }
+
+        async function apiGetHistory() {
+            const sid = document.getElementById('notebookSessionId').value.trim();
+            if (!sid) { showLog("<span style='color:red;'>Please enter a Target Session ID in step 3.</span>"); return; }
+            showLoader("Fetching history...");
+            try { await executeCall(BASE_URL + '/history?sessionID=' + sid, { method: 'GET' }); } 
+            finally { hideLoader(); }
+        }
+
+        async function apiResetConfig() {
+            const sid = document.getElementById('notebookSessionId').value.trim();
+            if (!sid) { showLog("<span style='color:red;'>Please enter a Target Session ID in step 3.</span>"); return; }
+            showLoader("Resetting machine state...");
+            try { await executeCall(BASE_URL + '/config/reset?sessionID=' + sid, { method: 'PUT' }); } 
+            finally { hideLoader(); }
+        }
+
+        async function apiManualConfig() {
+            const jsonInput = document.getElementById('manualJsonInput').value.trim();
+            if (!jsonInput) {
+                const example = {
+                    "sessionID": "PASTE_YOUR_SESSION_ID_HERE",
+                    "rotors": [ { "rotorNumber": 2, "rotorPosition": "A" } ],
+                    "reflector": "B",
+                    "plugs": [ { "plug1": "A", "plug2": "Z" } ]
+                };
+                showLog("<span style='color:red;'>Please provide a JSON body for manual config.</span><br><b>Example:</b><br><pre style='margin:0; font-size:11px;'>" + JSON.stringify(example, null, 2) + "</pre>");
+                return;
+            }
+            
+            let requestBody;
+            try {
+                requestBody = JSON.parse(jsonInput);
+                if (!requestBody.sessionID) {
+                    showLog("<span style='color:red;'>Error: Your JSON must include the 'sessionID' field!</span>");
+                    return;
+                }
+            } catch (e) {
+                showLog("<span style='color:red;'>Invalid JSON format! Please fix the syntax.</span>");
+                return;
+            }
+
+            showLoader("Applying manual config...");
+            try { 
+                await executeCall(BASE_URL + '/config/manual', { 
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody)
+                }); 
+            } 
+            finally { hideLoader(); }
+        }
+
+        async function apiProcess() {
+            const sid = document.getElementById('processSessionId').value.trim();
+            if (!sid) { showLog("<span style='color:red;'>Please enter a Session ID first.</span>"); return; }
+            
+            const inputTxt = document.getElementById('encryptInput').value;
+            if (!inputTxt) { showLog("<span style='color:red;'>Please enter text to process.</span>"); return; }
+            
+            showLoader("Processing encryption...");
+            try {
+                const response = await fetch(BASE_URL + '/process?input=' + encodeURIComponent(inputTxt) + '&sessionId=' + sid, { method: 'POST' });
+                const textData = await response.text();
+
+                if (!response.ok) {
+                    throw new Error("Error " + response.status + ": " + textData);
+                }
+
+                let jsonData;
+                try { jsonData = JSON.parse(textData); } catch(e) { jsonData = textData; }
+
+                let displayHtml = `<div class="enigma-result-box"><div class="enigma-result-header">⚠️ TOP SECRET INTERCEPT ⚠️</div><div style="color: #7f8c8d; font-size: 11px; margin-bottom: 5px;">TRANSMISSION RECEIVED:</div>`;
+
+                if (typeof jsonData === 'object' && jsonData.output) {
+                    displayHtml += `<div class="enigma-result-output">${jsonData.output}</div>`;
+                    if (jsonData.currentRotorsPositionCompact) {
+                        displayHtml += `<div class="enigma-result-meta"><div class="meta-badge">ROTORS: ${jsonData.currentRotorsPositionCompact}</div></div>`;
+                    }
+                } else {
+                    displayHtml += `<div class="enigma-result-output">${jsonData}</div>`;
+                }
+
+                displayHtml += `</div>`;
+                document.getElementById('apiResultText').innerHTML = displayHtml; 
+
+            } catch (error) {
+                showLog("<span style='color:red;'>ERROR: " + error.message + "</span>");
+            } finally { hideLoader(); }
+        }
+
+    </script>
+</body>
+</html>
